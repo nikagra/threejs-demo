@@ -1,6 +1,10 @@
-var WIDTH = 640, HEIGHT = 480;
+var WIDTH = window.innerWidth;
+var HEIGHT = window.innerHeight;
+
 var light, camera, scene, renderer, controls;
 var geometry, material, mesh;
+
+var lastTime = 0;
 
 function start() {
     init();
@@ -16,8 +20,16 @@ function init() {
     scene = new THREE.Scene();
 
     camera = new THREE.PerspectiveCamera(45, WIDTH / HEIGHT, 1, 10000);
-    camera.position.z = 250;
+    camera.position.set(0, 50, 250);
     scene.add(camera);
+
+    window.addEventListener('resize', function() {
+        WIDTH = window.innerWidth;
+        HEIGHT = window.innerHeight;
+        renderer.setSize(WIDTH, HEIGHT);
+        camera.aspect = WIDTH / HEIGHT;
+        camera.updateProjectionMatrix();
+    });
 
     light = new THREE.PointLight(0xFFFFFF);
     light.position.set(-100, 200, 100);
@@ -33,7 +45,14 @@ function init() {
 
 function animate() {
     requestAnimationFrame(animate);
-
     renderer.render(scene, camera);
+
+    var timeNow = new Date().getTime();
+    if (lastTime != 0) {
+        var elapsed = timeNow - lastTime;
+        mesh.rotation.y = (mesh.rotation.y + elapsed / 1000) % (2 * Math.PI);
+    }
+    lastTime = timeNow;
+
     controls.update();
 }
